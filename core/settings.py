@@ -133,7 +133,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'barbershop_app.User'
 
 CSRF_TRUSTED_ORIGINS = [
-    "*"
+    "https://barbershop-production-8177.up.railway.app"
 ]
 
 # Crispy forms
