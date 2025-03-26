@@ -17,8 +17,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-here')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.getenv('DEBUG', 1))
 
-# Разрешенные хосты
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,barbershop-v42x.onrender.com').split(',')
+# Разрешенные хосты (временно разрешаем все для тестирования)
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
