@@ -17,8 +17,14 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key-here')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.getenv('DEBUG', 1))
 
-# Разрешенные хосты (временно разрешаем все для тестирования)
-ALLOWED_HOSTS = ['*']
+# Разрешенные хосты
+ALLOWED_HOSTS = [
+    'barbershop-v42x.onrender.com',
+    'localhost',
+    '127.0.0.1',
+    '.onrender.com',  # Разрешаем все поддомены render.com
+    '*',  # Временно разрешаем все хосты для отладки
+]
 
 # Application definition
 INSTALLED_APPS = [
