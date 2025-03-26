@@ -10,6 +10,24 @@
     {% endif %}
 </div>
 
+<div class="mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-8">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Поиск по названию услуги..." value="{{ request.GET.search }}">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="bi bi-search"></i> Найти
+                </button>
+                {% if request.GET.search %}
+                <a href="{% url 'service_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Сбросить
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+
 <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for service in services %}
     <div class="col">
@@ -30,6 +48,16 @@
                 <a href="{% url 'order_create_with_service' service.pk %}" class="btn btn-primary">Записаться</a>
                 {% endif %}
             </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            {% if request.GET.search %}
+            По вашему запросу ничего не найдено
+            {% else %}
+            Услуги пока не добавлены
+            {% endif %}
         </div>
     </div>
     {% endfor %}

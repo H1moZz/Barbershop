@@ -65,6 +65,18 @@ class ServiceListView(ListView):
     template_name = 'barbershop_app/service_list.html'
     context_object_name = 'services'
 
+    def get_queryset(self):
+        queryset = Service.objects.all()
+        search_query = self.request.GET.get('search')
+        if search_query:
+            queryset = queryset.filter(name__icontains=search_query)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search'] = self.request.GET.get('search', '')
+        return context
+
 class ServiceCreateView(StaffRequiredMixin, CreateView):
     model = Service
     template_name = 'barbershop_app/service_form.html'
@@ -89,9 +101,31 @@ class OrderListView(LoginRequiredMixin, ListView):
     context_object_name = 'orders'
 
     def get_queryset(self):
-        if self.request.user.is_staff:
-            return Order.objects.all()
-        return Order.objects.filter(Q(client=self.request.user) | Q(barber=self.request.user))
+        queryset = Order.objects.all() if self.request.user.is_staff else Order.objects.filter(Q(client=self.request.user) | Q(barber=self.request.user))
+        
+        # Получаем параметр сортировки
+        sort_param = self.request.GET.get('sort')
+        if sort_param:
+            # Если параметр начинается с '-', значит сортировка по убыванию
+            if sort_param.startswith('-'):
+                # Если уже сортируем по убыванию, меняем на возрастание
+                if self.request.GET.get('current_sort') == sort_param:
+                    sort_param = sort_param[1:]
+            else:
+                # Если сортируем по возрастанию, меняем на убывание
+                if self.request.GET.get('current_sort') == sort_param:
+                    sort_param = f'-{sort_param}'
+            queryset = queryset.order_by(sort_param)
+        else:
+            # По умолчанию сортируем по ID по убыванию
+            queryset = queryset.order_by('-id')
+            
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sort'] = self.request.GET.get('sort', '-id')
+        return context
 
 @login_required
 def create_order(request, service_id=None, barber_id=None):

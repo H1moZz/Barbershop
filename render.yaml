@@ -10,7 +10,7 @@ services:
       - key: DEBUG
         value: 0
       - key: DJANGO_ALLOWED_HOSTS
-        value: .onrender.com
+        value: barbershop-v42x.onrender.com,.onrender.com
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL

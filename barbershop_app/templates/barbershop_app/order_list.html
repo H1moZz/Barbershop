@@ -20,14 +20,62 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>№</th>
-                    <th>Клиент</th>
-                    <th>Услуга</th>
-                    <th>Мастер</th>
-                    <th>Дата</th>
-                    <th>Время</th>
-                    <th>Статус</th>
-                    <th>Стоимость</th>
+                    <th>
+                        <a href="?sort=id" class="text-dark text-decoration-none">
+                            №
+                            {% if sort == 'id' %}<i class="bi bi-arrow-down"></i>
+                            {% elif sort == '-id' %}<i class="bi bi-arrow-up"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=client__name" class="text-dark text-decoration-none">
+                            Клиент
+                            {% if sort == 'client__name' %}<i class="bi bi-arrow-down"></i>
+                            {% elif sort == '-client__name' %}<i class="bi bi-arrow-up"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=service__name" class="text-dark text-decoration-none">
+                            Услуга
+                            {% if sort == 'service__name' %}<i class="bi bi-arrow-down"></i>
+                            {% elif sort == '-service__name' %}<i class="bi bi-arrow-up"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=barber__name" class="text-dark text-decoration-none">
+                            Мастер
+                            {% if sort == 'barber__name' %}<i class="bi bi-arrow-down"></i>
+                            {% elif sort == '-barber__name' %}<i class="bi bi-arrow-up"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=appointment_date" class="text-dark text-decoration-none">
+                            Дата
+                            {% if sort == 'appointment_date' %}<i class="bi bi-arrow-down"></i>
+                            {% elif sort == '-appointment_date' %}<i class="bi bi-arrow-up"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=appointment_time" class="text-dark text-decoration-none">
+                            Время
+                            {% if sort == 'appointment_time' %}<i class="bi bi-arrow-down"></i>
+                            {% elif sort == '-appointment_time' %}<i class="bi bi-arrow-up"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=status" class="text-dark text-decoration-none">
+                            Статус
+                            {% if sort == 'status' %}<i class="bi bi-arrow-down"></i>
+                            {% elif sort == '-status' %}<i class="bi bi-arrow-up"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort=total_price" class="text-dark text-decoration-none">
+                            Стоимость
+                            {% if sort == 'total_price' %}<i class="bi bi-arrow-down"></i>
+                            {% elif sort == '-total_price' %}<i class="bi bi-arrow-up"></i>{% endif %}
+                        </a>
+                    </th>
                     <th>Действия</th>
                 </tr>
             </thead>
