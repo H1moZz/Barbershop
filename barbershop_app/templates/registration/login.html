@@ -1,0 +1,48 @@
+{% extends 'barbershop_app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Вход в систему</h2>
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Имя пользователя</label>
+                            <input type="text" name="username" class="form-control" id="id_username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">Пароль</label>
+                            <input type="password" name="password" class="form-control" id="id_password" required>
+                        </div>
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <p>Пожалуйста, проверьте правильность введенных данных.</p>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Войти</button>
+                            <p class="text-center mt-3">
+                                Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

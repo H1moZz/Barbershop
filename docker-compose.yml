@@ -1,0 +1,17 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: barbershop-web
+    command: python manage.py runserver 0.0.0.0:8001
+    ports:
+      - "8001:8001"
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

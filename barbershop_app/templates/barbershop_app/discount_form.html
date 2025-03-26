@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+{% if form.instance.pk %}
+Редактирование скидки
+{% else %}
+Добавление скидки
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">
+                    {% if form.instance.pk %}
+                    Редактирование скидки
+                    {% else %}
+                    Добавление скидки
+                    {% endif %}
+                </h2>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <a href="{% url 'discount_list' %}" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#id_valid_until", {
+            locale: "ru",
+            dateFormat: "Y-m-d",
+            minDate: "today"
+        });
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,444 @@
+{% extends 'barbershop_app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if order %}Изменить заказ{% else %}Новый заказ{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .timeline {
+        position: relative;
+        margin: 40px 0;
+        padding: 40px 0;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        height: 140px;
+        overflow: visible;
+    }
+
+    .timeline-line {
+        position: absolute;
+        top: 50%;
+        left: 40px;
+        right: 40px;
+        height: 2px;
+        background-color: #007bff;
+        z-index: 1;
+    }
+
+    .timeline-slots {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 40px;
+        margin-top: 30px;
+    }
+
+    .timeline-slot {
+        position: absolute;
+        text-align: center;
+        padding: 2px 4px;
+        background-color: white;
+        border: 1px solid #007bff;
+        border-radius: 4px;
+        font-size: 0.8em;
+        font-weight: 500;
+        margin-bottom: 20px;
+        z-index: 3;
+        transform: translateX(-50%);
+        white-space: nowrap;
+    }
+
+    .timeline-slot::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        width: 1px;
+        height: 10px;
+        background-color: #007bff;
+        transform: translateX(-50%);
+    }
+
+    .timeline-event {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(220, 53, 69, 0.8);
+        color: white;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-size: 0.75em;
+        z-index: 4;
+        cursor: pointer;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        min-width: 40px;
+    }
+
+    .timeline-event:hover {
+        background-color: rgba(220, 53, 69, 1);
+        transform: translateY(-50%) scale(1.05);
+    }
+
+    .timeline-event-tooltip {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 3px;
+        font-size: 0.75em;
+        z-index: 5;
+        display: none;
+        white-space: nowrap;
+        margin-bottom: 4px;
+    }
+
+    .timeline-event:hover .timeline-event-tooltip {
+        display: block;
+    }
+
+    .timeline-event-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 6px;
+        border-style: solid;
+        border-color: rgba(0, 0, 0, 0.9) transparent transparent;
+    }
+
+    .time-slot {
+        display: inline-block;
+        margin: 5px;
+        padding: 8px 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background-color: #fff;
+    }
+
+    .time-slot:hover {
+        background-color: #e9ecef;
+        border-color: #007bff;
+    }
+
+    .time-slot.selected {
+        background-color: #007bff;
+        color: white;
+        border-color: #0056b3;
+    }
+
+    #timeSlots {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .time-slots-container {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background-color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">
+                        {% if order %}
+                            Изменить заказ
+                        {% else %}
+                            Новый заказ
+                        {% endif %}
+                    </h2>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <p>{{ field.label }}: {{ error }}</p>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                {% if is_admin %}
+                                    {{ form.client|as_crispy_field }}
+                                {% endif %}
+                                {{ form.service|as_crispy_field }}
+                                {{ form.barber|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.appointment_date|as_crispy_field }}
+                                {{ form.appointment_time|as_crispy_field }}
+                                {{ form.discount|as_crispy_field }}
+                                {% if is_admin %}
+                                    {{ form.status|as_crispy_field }}
+                                    {{ form.total_price|as_crispy_field }}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Контейнер для временных слотов -->
+                        <div id="timeSlotsContainer" style="display: none;">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-4">Расписание на выбранную дату</h5>
+                                    
+                                    <!-- Временная шкала -->
+                                    <div class="timeline">
+                                        <div class="timeline-line"></div>
+                                        <div id="timelineSlots" class="timeline-slots">
+                                            <!-- Здесь будет временная шкала -->
+                                        </div>
+                                    </div>
+
+                                    <h5 class="card-title mt-4 mb-3">Доступное время</h5>
+                                    <div class="time-slots-container">
+                                        <div id="timeSlots" class="text-center">
+                                            <!-- Здесь будут отображаться доступные временные слоты -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                {% if order %}
+                                    Сохранить изменения
+                                {% else %}
+                                    Создать заказ
+                                {% endif %}
+                            </button>
+                            <a href="{% url 'order_list' %}" class="btn btn-secondary">Отмена</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="timeline" class="mt-4"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+<script>
+    // Инициализация Flatpickr
+    flatpickr("#id_appointment_date", {
+        locale: "ru",
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        disable: [
+            function(date) {
+                return (date.getDay() === 0);  // Отключаем воскресенья
+            }
+        ],
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) {
+                const selectedDate = dateStr;
+                const barberId = document.getElementById('id_barber').value;
+                if (barberId) {
+                    loadTimeSlots(barberId, selectedDate);
+                }
+            }
+        }
+    });
+
+    // Если мастер уже выбран, делаем поле выбора мастера неактивным
+    const barberSelect = document.getElementById('id_barber');
+    if (barberSelect.options.length === 1 && barberSelect.value) {
+        barberSelect.disabled = true;
+    }
+
+    // Функция для создания временной шкалы
+    function createTimeline() {
+        const timelineSlots = document.getElementById('timelineSlots');
+        timelineSlots.innerHTML = '';
+        const timeline = document.querySelector('.timeline');
+        const timelineWidth = timeline.offsetWidth - 80; // Учитываем отступы по 40px с каждой стороны
+        
+        // Создаем метки времени с 9:00 до 21:00
+        for (let hour = 9; hour <= 21; hour++) {
+            const slot = document.createElement('div');
+            slot.className = 'timeline-slot';
+            slot.textContent = `${hour}:00`;
+            
+            // Вычисляем позицию для каждого часа
+            const position = ((hour - 9) / 12) * timelineWidth + 40;
+            slot.style.left = `${position}px`;
+            
+            timelineSlots.appendChild(slot);
+        }
+    }
+
+    // Функция для добавления событий на временную шкалу
+    function addTimelineEvents(bookedSlots) {
+        const timeline = document.querySelector('.timeline');
+        const timelineWidth = timeline.offsetWidth - 80; // Учитываем отступы по 40px с каждой стороны
+        const startHour = 9;
+        const endHour = 21;
+        const totalMinutes = (endHour - startHour) * 60; // Общее количество минут
+
+        // Удаляем существующие события
+        document.querySelectorAll('.timeline-event').forEach(event => event.remove());
+
+        bookedSlots.forEach(slot => {
+            const [hours, minutes] = slot.time.split(':').map(Number);
+            const duration = slot.duration || 60; // Длительность в минутах
+
+            // Проверяем, не выходит ли событие за пределы временной шкалы
+            if (hours < startHour || (hours === endHour && minutes > 0) || hours > endHour) {
+                console.log(`Пропущено событие ${slot.time}: выходит за пределы шкалы`);
+                return;
+            }
+
+            // Вычисляем позицию и ширину события в минутах
+            const minutesSinceStart = (hours - startHour) * 60 + minutes;
+            const leftPosition = (minutesSinceStart / totalMinutes) * timelineWidth + 40;
+            const width = Math.min(
+                (duration / totalMinutes) * timelineWidth,
+                timelineWidth - leftPosition + 40 // Ограничиваем ширину правым краем
+            );
+
+            const event = document.createElement('div');
+            event.className = 'timeline-event';
+            event.style.left = `${leftPosition}px`;
+            event.style.width = `${width}px`;
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'timeline-event-tooltip';
+            tooltip.textContent = `${slot.time} - ${duration} мин`;
+            
+            event.appendChild(tooltip);
+            timeline.appendChild(event);
+
+            console.log(`Добавлен блок: время ${slot.time}, позиция ${leftPosition}px, ширина ${width}px`);
+        });
+    }
+
+    // Функция для загрузки временных слотов
+    async function loadTimeSlots(barberId, date) {
+        if (!barberId || !date) return;
+
+        try {
+            const response = await fetch(`/api/available-slots/${barberId}/${date}/`);
+            const data = await response.json();
+
+            document.getElementById('timeSlotsContainer').style.display = 'block';
+            
+            // Создаем временную шкалу
+            createTimeline();
+            
+            // Добавляем занятые слоты на шкалу
+            if (data.booked_slots) {
+                addTimelineEvents(data.booked_slots);
+            }
+
+            // Отображаем доступные временные слоты
+            const timeSlotsContainer = document.getElementById('timeSlots');
+            timeSlotsContainer.innerHTML = '';
+
+            if (data.available_slots && data.available_slots.length > 0) {
+                data.available_slots.forEach(time => {
+                    const slot = document.createElement('div');
+                    slot.className = 'time-slot';
+                    slot.textContent = time;
+                    slot.onclick = function() {
+                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                        this.classList.add('selected');
+                        document.getElementById('id_appointment_time').value = time;
+                    };
+                    timeSlotsContainer.appendChild(slot);
+                });
+            } else {
+                timeSlotsContainer.innerHTML = '<p class="text-muted">Нет доступных временных слотов на выбранную дату</p>';
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке временных слотов:', error);
+            timeSlotsContainer.innerHTML = '<p class="text-danger">Ошибка при загрузке временных слотов</p>';
+        }
+    }
+
+    // Обработчик изменения барбера
+    document.getElementById('id_barber').addEventListener('change', function() {
+        const date = document.getElementById('id_appointment_date').value;
+        if (date) {
+            loadTimeSlots(this.value, date);
+        }
+    });
+
+    // Обработчик изменения услуги
+    document.getElementById('id_service').addEventListener('change', async function() {
+        const serviceId = this.value;
+        if (!serviceId) return;
+
+        // Если мастер уже выбран и зафиксирован, не обновляем список мастеров
+        if (barberSelect.disabled) return;
+
+        try {
+            const response = await fetch(`/api/barbers-by-service/${serviceId}/`);
+            const barbers = await response.json();
+            
+            barberSelect.innerHTML = '<option value="">Выберите мастера</option>';
+            
+            barbers.forEach(barber => {
+                const option = document.createElement('option');
+                option.value = barber.id;
+                option.textContent = barber.name;
+                barberSelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Ошибка при загрузке барберов:', error);
+            barberSelect.innerHTML = '<option value="">Ошибка загрузки мастеров</option>';
+        }
+    });
+
+    // Добавляем отладочную информацию
+    console.log('Form fields:', {
+        date: document.getElementById('id_appointment_date'),
+        time: document.getElementById('id_appointment_time'),
+        barber: document.getElementById('id_barber'),
+        service: document.getElementById('id_service')
+    });
+</script>
+{% endblock %} 

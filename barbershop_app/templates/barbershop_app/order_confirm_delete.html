@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Удаление заказа{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Удаление заказа</h2>
+                <p class="text-center">Вы уверены, что хотите удалить заказ №{{ object.id }}?</p>
+                <div class="mb-4">
+                    <p><strong>Клиент:</strong> {{ object.client.name }}</p>
+                    <p><strong>Услуга:</strong> {{ object.service.name }}</p>
+                    <p><strong>Дата:</strong> {{ object.appointment_date }}</p>
+                    <p><strong>Время:</strong> {{ object.appointment_time }}</p>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                        <a href="{% url 'order_list' %}" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

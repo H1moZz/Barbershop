@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Услуги{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Услуги</h1>
+    {% if user.is_staff %}
+    <a href="{% url 'service_create' %}" class="btn btn-primary">Добавить услугу</a>
+    {% endif %}
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for service in services %}
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ service.name }}</h5>
+                <p class="card-text">{{ service.description }}</p>
+                <ul class="list-unstyled">
+                    <li><strong>Цена:</strong> {{ service.price }} руб.</li>
+                    <li><strong>Длительность:</strong> {{ service.duration }} мин.</li>
+                </ul>
+                {% if user.is_staff %}
+                <div class="mt-3">
+                    <a href="{% url 'service_update' service.pk %}" class="btn btn-sm btn-outline-primary">Изменить</a>
+                    <a href="{% url 'service_delete' service.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+                </div>
+                {% else %}
+                <a href="{% url 'order_create_with_service' service.pk %}" class="btn btn-primary">Записаться</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %} 

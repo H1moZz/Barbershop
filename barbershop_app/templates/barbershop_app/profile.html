@@ -1,0 +1,206 @@
+{% extends 'barbershop_app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Профиль - {{ user.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Информация о пользователе -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Профиль</h2>
+                    <div class="text-center mb-4">
+                        {% if user.profile_photo %}
+                            <img src="{{ user.profile_photo.url }}" alt="Фото профиля" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                            <div class="display-1 mb-3">
+                                <i class="bi bi-person-circle"></i>
+                            </div>
+                        {% endif %}
+                        <h3>{{ user.name }}</h3>
+                        <p class="text-muted">{{ user.role.role_name }}</p>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="bi bi-envelope"></i> {{ user.email|default:"Email не указан" }}
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-telephone"></i> {{ user.phone|default:"Телефон не указан" }}
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-person"></i> {{ user.username }}
+                        </li>
+                    </ul>
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                            Редактировать профиль
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- История заказов -->
+        <div class="col-md-8">
+            <!-- Заказы клиента -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Мои заказы</h2>
+                    {% if client_orders %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Услуга</th>
+                                    <th>Мастер</th>
+                                    <th>Стоимость</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in client_orders %}
+                                <tr>
+                                    <td>
+                                        {{ order.appointment_date }}<br>
+                                        <small class="text-muted">{{ order.appointment_time }}</small>
+                                    </td>
+                                    <td>{{ order.service.name }}</td>
+                                    <td>{{ order.barber.name }}</td>
+                                    <td>{{ order.total_price }} ₽</td>
+                                    <td>
+                                        <span class="badge {% if order.status == 'completed' %}bg-success
+                                                     {% elif order.status == 'cancelled' %}bg-danger
+                                                     {% elif order.status == 'confirmed' %}bg-primary
+                                                     {% else %}bg-warning{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if order.status == 'pending' %}
+                                        <a href="{% url 'order_update' order.pk %}" class="btn btn-sm btn-outline-primary">
+                                            Изменить
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <p class="mb-3">У вас пока нет заказов</p>
+                        <a href="{% url 'service_list' %}" class="btn btn-primary">Записаться на услугу</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Заказы мастера -->
+            {% if barber_orders %}
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Заказы ко мне</h2>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Услуга</th>
+                                    <th>Клиент</th>
+                                    <th>Стоимость</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in barber_orders %}
+                                <tr>
+                                    <td>
+                                        {{ order.appointment_date }}<br>
+                                        <small class="text-muted">{{ order.appointment_time }}</small>
+                                    </td>
+                                    <td>{{ order.service.name }}</td>
+                                    <td>{{ order.client.name }}</td>
+                                    <td>{{ order.total_price }} ₽</td>
+                                    <td>
+                                        <span class="badge {% if order.status == 'completed' %}bg-success
+                                                     {% elif order.status == 'cancelled' %}bg-danger
+                                                     {% elif order.status == 'confirmed' %}bg-primary
+                                                     {% else %}bg-warning{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if order.status == 'pending' %}
+                                            <div class="btn-group">
+                                                <a href="{% url 'order_update' order.pk %}" class="btn btn-sm btn-outline-primary">
+                                                    Изменить
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования профиля -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Редактирование профиля</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'profile_update' %}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Полное имя</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Телефон</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">О себе</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ user.description }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="profile_photo" class="form-label">Фото профиля</label>
+                        <input type="file" class="form-control" id="profile_photo" name="profile_photo" accept="image/*">
+                        {% if user.profile_photo %}
+                            <div class="form-text">Текущее фото: {{ user.profile_photo.name }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+{% endblock %} 
