@@ -132,6 +132,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom user model
 AUTH_USER_MODEL = 'barbershop_app.User'
 
+CSRF_TRUSTED_ORIGINS = ['https://barbershop-production-8177.up.railway.app/']
+
 # Crispy forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
