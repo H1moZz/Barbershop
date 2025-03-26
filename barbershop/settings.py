@@ -19,11 +19,12 @@ DEBUG = int(os.getenv('DEBUG', 1))
 
 # Разрешенные хосты
 ALLOWED_HOSTS = [
-    'barbershop-v42x.onrender.com',
+    'barbershop-v42x.onrender.com',  # Render
+    'barbershop-production-e3b5.up.railway.app',  # Railway
     'localhost',
     '127.0.0.1',
-    '.onrender.com',  # Разрешаем все поддомены render.com
-    '*',  # Временно разрешаем все хосты для отладки
+    '.onrender.com',
+    '.up.railway.app',  # Разрешаем все поддомены Railway
 ]
 
 # Application definition
