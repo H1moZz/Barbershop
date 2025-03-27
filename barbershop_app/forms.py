@@ -32,7 +32,7 @@ class RegisterForm(UserCreationForm):
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['client', 'service', 'barber', 'appointment_date', 'appointment_time', 'discount']
+        fields = ['service', 'barber', 'appointment_date', 'appointment_time', 'discount']
         widgets = {
             'appointment_date': forms.DateInput(attrs={'type': 'date'}),
             'appointment_time': forms.TimeInput(attrs={'type': 'time'}),
@@ -40,10 +40,7 @@ class OrderForm(forms.ModelForm):
 
     def __init__(self, *args, user=None, service_id=None, barber_id=None, **kwargs):
         super().__init__(*args, **kwargs)
-        if user:
-            self.user = user
-            self.fields['client'].widget = forms.HiddenInput()
-            self.fields['client'].initial = user
+        self.user = user
         
         # Если передан ID услуги, устанавливаем его как начальное значение
         if service_id:
@@ -99,7 +96,7 @@ class OrderForm(forms.ModelForm):
 
         cleaned_data['total_price'] = service.price
         if cleaned_data.get('discount'):
-            discount_percent = cleaned_data['discount'].discount_percent
+            discount_percent = cleaned_data['discount'].percent
             cleaned_data['total_price'] = service.price * (1 - discount_percent / 100)
 
         return cleaned_data
@@ -138,7 +135,6 @@ class AdminOrderForm(forms.ModelForm):
 
     def __init__(self, *args, service_id=None, barber_id=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['total_price'].widget.attrs['readonly'] = True
         
         # Если передан ID услуги, устанавливаем его как начальное значение
         if service_id:
@@ -154,10 +150,20 @@ class AdminOrderForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        service = cleaned_data.get('service')
+        
+        # Автоматически устанавливаем total_price на основе выбранной услуги
+        if service:
+            cleaned_data['total_price'] = service.price
+            # Учитываем скидку, если она есть
+            if cleaned_data.get('discount'):
+                discount_percent = cleaned_data['discount'].percent
+                cleaned_data['total_price'] = service.price * (1 - discount_percent / 100)
+
+        # Остальные проверки...
         appointment_date = cleaned_data.get('appointment_date')
         appointment_time = cleaned_data.get('appointment_time')
         barber = cleaned_data.get('barber')
-        service = cleaned_data.get('service')
 
         if not all([appointment_date, appointment_time, barber, service]):
             return cleaned_data
@@ -191,11 +197,6 @@ class AdminOrderForm(forms.ModelForm):
                     f'Мастер занят с {order.appointment_time} до {order_end.time()}. '
                     f'Пожалуйста, выберите другое время.'
                 )
-
-        cleaned_data['total_price'] = service.price
-        if cleaned_data.get('discount'):
-            discount_percent = cleaned_data['discount'].discount_percent
-            cleaned_data['total_price'] = service.price * (1 - discount_percent / 100)
 
         return cleaned_data
 

@@ -197,9 +197,6 @@
 
                         <div class="row">
                             <div class="col-md-6">
-                                {% if is_admin %}
-                                    {{ form.client|as_crispy_field }}
-                                {% endif %}
                                 {{ form.service|as_crispy_field }}
                                 {{ form.barber|as_crispy_field }}
                             </div>
@@ -208,8 +205,8 @@
                                 {{ form.appointment_time|as_crispy_field }}
                                 {{ form.discount|as_crispy_field }}
                                 {% if is_admin %}
+                                    {{ form.client|as_crispy_field }}
                                     {{ form.status|as_crispy_field }}
-                                    {{ form.total_price|as_crispy_field }}
                                 {% endif %}
                             </div>
                         </div>

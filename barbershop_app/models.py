@@ -67,7 +67,13 @@ class Order(models.Model):
     order_date = models.DateTimeField('Дата заказа', auto_now_add=True)
     appointment_date = models.DateField('Дата записи')
     appointment_time = models.TimeField('Время записи')
-    total_price = models.DecimalField('Итоговая стоимость', max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name='Итоговая цена',
+        null=True,
+        blank=True
+    )
     status = models.CharField('Статус', max_length=20, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
